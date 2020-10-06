@@ -1,8 +1,7 @@
 package regnidorhcs
 
 import (
-	"log"
-    "os"
+	log "github.com/sirupsen/logrus"
 )
 
 // the status of things
@@ -14,39 +13,43 @@ const (
 )
 
 type Regnidorhcs struct {
-	status   string
-	containd []interface{}
+	status  string
+    // unknown indicate the status of the program in Schrodinger
+	unknown interface{}
 }
 
 type regnidorhcs interface {
-	init()
-	getStatus() string
-	setStatus(status string)
-	updateStatus(status string)
+	Init()
+	GetStatus() string
+	SetStatus(status string)
+	UpdateStatus(status string)
 	IsSchrodinger() bool
-	Takedown(value bool) error
-	takedown()
+    wantDead(unknown interface{}) bool
+	Takedown(value bool, status string) error
+	takedown(status string)
+    Turnup(value bool, status string) error
+    turnup(stauts string)
 	IsRegnidorhcs() bool
 	IsAlive() bool
 	IsDead() bool
 }
 
-func (r *Regnidorhcs) init() {
+func (r *Regnidorhcs) Init() {
 	r.status = NULL
-	r.containd = nil
+	r.unknown = nil
 }
 
-func (r *Regnidorhcs) getStatus() string {
+func (r *Regnidorhcs) GetStatus() string {
 	return r.status
 }
 
-func (r *Regnidorhcs) setStatus(status string) {
+func (r *Regnidorhcs) SetStatus(status string) {
 	r.status = status
 }
 
-func (r *Regnidorhcs) updateStatus(status string) {
+func (r *Regnidorhcs) UpdateStatus(status string) {
 	if status != NULL && status != SCHRODINGER || !r.IsSchrodinger() {
-		r.setStatus(status)
+		r.SetStatus(status)
 	}
 }
 
@@ -57,23 +60,45 @@ func (r *Regnidorhcs) IsSchrodinger() (ok bool) {
 			ok = false
 		case SCHRODINGER:
 			ok = true
-			r.Takedown(ok)
+            if r.wantDead(r.unknown) {
+			    r.Takedown(ok, DEAD)
+            }
+            r.Turnup(ok, ALIVE)
 		default:
 		}
 	}
 	return
 }
 
-func (r *Regnidorhcs) Takedown(value bool) error {
+func (r *Regnidorhcs) wantDead(unknown interface{}) bool {
+    if r.unknown == nil {
+        return true
+    }
+    return false
+}
+
+func (r *Regnidorhcs) Takedown(value bool, status string) error {
 	if !value {
 		log.Fatalf("cannot takedown the stuff!")
 	}
-	r.takedown()
+	r.takedown(status)
 	return nil
 }
 
-func (r *Regnidorhcs) takedown() {
-	os.Exit(1)
+func (r *Regnidorhcs) takedown(status string) {
+	r.status = status
+}
+
+func (r *Regnidorhcs) Turnup(value bool, status string) error {
+    if value {
+        log.Debugf("preparing to turn up...")
+    }
+    r.turnup(status)
+    return nil
+}
+
+func (r *Regnidorhcs) turnup(status string) {
+    r.status = status
 }
 
 func (r *Regnidorhcs) IsRegnidorhcs() bool {
