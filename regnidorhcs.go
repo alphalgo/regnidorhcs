@@ -12,13 +12,13 @@ const (
 	SCHRODINGER = "schrodinger"
 )
 
-type Regnidorhcs struct {
+type regnidorhcs struct {
 	status  string
-    // unknown indicate the status of the program in Schrodinger
+    // unknown indicates the status of the program in Schrodinger
 	unknown interface{}
 }
 
-type regnidorhcs interface {
+type R interface {
 	Init()
 	GetStatus() string
 	SetStatus(status string)
@@ -34,26 +34,26 @@ type regnidorhcs interface {
 	IsDead() bool
 }
 
-func (r *Regnidorhcs) Init() {
+func (r *regnidorhcs) Init() {
 	r.status = NULL
 	r.unknown = nil
 }
 
-func (r *Regnidorhcs) GetStatus() string {
+func (r *regnidorhcs) GetStatus() string {
 	return r.status
 }
 
-func (r *Regnidorhcs) SetStatus(status string) {
+func (r *regnidorhcs) SetStatus(status string) {
 	r.status = status
 }
 
-func (r *Regnidorhcs) UpdateStatus(status string) {
+func (r *regnidorhcs) UpdateStatus(status string) {
 	if status != NULL && status != SCHRODINGER || !r.IsSchrodinger() {
 		r.SetStatus(status)
 	}
 }
 
-func (r *Regnidorhcs) IsSchrodinger() (ok bool) {
+func (r *regnidorhcs) IsSchrodinger() (ok bool) {
 	if r.status != NULL {
 		switch r.status {
 		case ALIVE, DEAD:
@@ -70,7 +70,7 @@ func (r *Regnidorhcs) IsSchrodinger() (ok bool) {
 	return
 }
 
-func (r *Regnidorhcs) wantDead(unknown ...interface{}) bool {
+func (r *regnidorhcs) wantDead(unknown ...interface{}) bool {
     if len(unknown) > 0 {
         r.unknown = unknown[0]
         if r.unknown == nil {
@@ -81,7 +81,7 @@ func (r *Regnidorhcs) wantDead(unknown ...interface{}) bool {
     return true
 }
 
-func (r *Regnidorhcs) Takedown(value bool, status string) bool {
+func (r *regnidorhcs) Takedown(value bool, status string) bool {
 	if !value {
 		log.Fatalf("cannot takedown the program!")
 	}
@@ -89,11 +89,11 @@ func (r *Regnidorhcs) Takedown(value bool, status string) bool {
     return r.IsDead()
 }
 
-func (r *Regnidorhcs) takedown(status string) {
+func (r *regnidorhcs) takedown(status string) {
     r.SetStatus(status)
 }
 
-func (r *Regnidorhcs) Turnup(value bool, status string) bool {
+func (r *regnidorhcs) Turnup(value bool, status string) bool {
     if value {
         log.Debugf("preparing to turn program up...")
     }
@@ -101,11 +101,11 @@ func (r *Regnidorhcs) Turnup(value bool, status string) bool {
     return r.IsAlive()
 }
 
-func (r *Regnidorhcs) turnup(status string) {
+func (r *regnidorhcs) turnup(status string) {
     r.SetStatus(status)
 }
 
-func (r *Regnidorhcs) IsRegnidorhcs() bool {
+func (r *regnidorhcs) IsRegnidorhcs() bool {
 	if r.status != NULL {
 		switch r.status {
 		case ALIVE, DEAD:
@@ -118,14 +118,14 @@ func (r *Regnidorhcs) IsRegnidorhcs() bool {
 	return false
 }
 
-func (r *Regnidorhcs) IsAlive() bool {
+func (r *regnidorhcs) IsAlive() bool {
 	if r.status == ALIVE {
 		return true
 	}
 	return false
 }
 
-func (r *Regnidorhcs) IsDead() bool {
+func (r *regnidorhcs) IsDead() bool {
 	if r.status == DEAD {
 		return true
 	}
