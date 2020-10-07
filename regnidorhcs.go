@@ -24,10 +24,10 @@ type regnidorhcs interface {
 	SetStatus(status string)
 	UpdateStatus(status string)
 	IsSchrodinger() bool
-    wantDead(unknown interface{}) bool
-	Takedown(value bool, status string) error
+    wantDead(unknown ...interface{}) bool
+	Takedown(value bool, status string) bool
 	takedown(status string)
-    Turnup(value bool, status string) error
+    Turnup(value bool, status string) bool
     turnup(stauts string)
 	IsRegnidorhcs() bool
 	IsAlive() bool
@@ -70,35 +70,39 @@ func (r *Regnidorhcs) IsSchrodinger() (ok bool) {
 	return
 }
 
-func (r *Regnidorhcs) wantDead(unknown interface{}) bool {
-    if r.unknown == nil {
-        return true
+func (r *Regnidorhcs) wantDead(unknown ...interface{}) bool {
+    if len(unknown) > 0 {
+        r.unknown = unknown[0]
+        if r.unknown == nil {
+            return true
+        }
+        return false
     }
-    return false
+    return true
 }
 
-func (r *Regnidorhcs) Takedown(value bool, status string) error {
+func (r *Regnidorhcs) Takedown(value bool, status string) bool {
 	if !value {
-		log.Fatalf("cannot takedown the stuff!")
+		log.Fatalf("cannot takedown the program!")
 	}
 	r.takedown(status)
-	return nil
+    return r.IsDead()
 }
 
 func (r *Regnidorhcs) takedown(status string) {
-	r.status = status
+    r.SetStatus(status)
 }
 
-func (r *Regnidorhcs) Turnup(value bool, status string) error {
+func (r *Regnidorhcs) Turnup(value bool, status string) bool {
     if value {
-        log.Debugf("preparing to turn up...")
+        log.Debugf("preparing to turn program up...")
     }
     r.turnup(status)
-    return nil
+    return r.IsAlive()
 }
 
 func (r *Regnidorhcs) turnup(status string) {
-    r.status = status
+    r.SetStatus(status)
 }
 
 func (r *Regnidorhcs) IsRegnidorhcs() bool {
@@ -106,8 +110,9 @@ func (r *Regnidorhcs) IsRegnidorhcs() bool {
 		switch r.status {
 		case ALIVE, DEAD:
 			return true
+        case SCHRODINGER:
+            return false
 		default:
-			return false
 		}
 	}
 	return false
